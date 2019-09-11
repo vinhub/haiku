@@ -71,10 +71,10 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                // Get downloaded asset bundle
+                // TODO: Not working
                 Texture2D texture = DownloadHandlerTexture.GetContent(uwr);
-                Material matSkybox = new Material(Shader.Find("Standard"));
-                matSkybox.SetTexture("_MainTex", texture);
+                Material matSkybox = new Material(Shader.Find("Skybox/Cubemap"));
+                matSkybox.SetTexture("_Tex", texture);
                 RenderSettings.skybox = matSkybox;
                 DynamicGI.UpdateEnvironment();
             }
