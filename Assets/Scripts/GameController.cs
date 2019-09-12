@@ -25,12 +25,22 @@ public class GameController : MonoBehaviour
 {
     int iVistaCur = 0;
     VistaData[] vistas;
+    GameObject objEffect;
+    Vector3 directionEffectRel;
 
     void Start()
     {
         TextAsset jsonTextFile = Resources.Load<TextAsset>("vistas");
         VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
         vistas = vistaDatas.vistaDatas;
+
+        objEffect = GameObject.FindWithTag("Effect");
+        directionEffectRel = Camera.main.transform.InverseTransformDirection(objEffect.transform.position);
+    }
+
+    void LateUpdate()
+    {
+        objEffect.transform.position = Camera.main.transform.TransformDirection(directionEffectRel);
     }
 
     public void NextVista()
