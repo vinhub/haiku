@@ -25,10 +25,10 @@ public class GameController : MonoBehaviour
 {
     public float sourceVisibleDelay = 10f;
 
-    int iVistaCur = 0;
+    int currentVistaIndex = 0;
     VistaData[] vistas;
-    GameObject objSource; // source of the magic effect (like bubbles or fireworks)
-    bool fSourceVisible = false;
+    GameObject sourceObject; // source of the magic effect (like bubbles or fireworks)
+    bool isSourceVisible = false;
 
     void Start()
     {
@@ -36,37 +36,37 @@ public class GameController : MonoBehaviour
         VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
         vistas = vistaDatas.vistaDatas;
 
-        objSource = GameObject.FindWithTag("Effect");
+        sourceObject = GameObject.FindWithTag("Effect");
     }
 
     void LateUpdate()
     {
         // if specified number of seconds are up, move the source object to center of screen
-        if (!fSourceVisible && (Time.realtimeSinceStartup > sourceVisibleDelay))
+        if (!isSourceVisible && (Time.realtimeSinceStartup > sourceVisibleDelay))
         {
-            Transform transform = objSource.transform;
+            Transform transform = sourceObject.transform;
             Vector3 localPosition = transform.localPosition;
             transform.Translate(-localPosition.x, -localPosition.y, localPosition.z, Camera.main.transform);
-            fSourceVisible = true;
+            isSourceVisible = true;
         }
     }
 
     public void NextVista()
     {
-        iVistaCur = (iVistaCur + 1) % vistas.Count();
-        if (RenderSettings.skybox.name != vistas[iVistaCur].fileName)
+        currentVistaIndex = (currentVistaIndex + 1) % vistas.Count();
+        if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
         {
-            loadVista(iVistaCur);
+            loadVista(currentVistaIndex);
         }
     }
 
     public void PrevVista()
     {
-        iVistaCur = ((iVistaCur - 1) >= 0) ? (iVistaCur - 1) : (vistas.Count() - 1);
+        currentVistaIndex = ((currentVistaIndex - 1) >= 0) ? (currentVistaIndex - 1) : (vistas.Count() - 1);
 
-        if (RenderSettings.skybox.name != vistas[iVistaCur].fileName)
+        if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
         {
-            loadVista(iVistaCur);
+            loadVista(currentVistaIndex);
         }
     }
 
