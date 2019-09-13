@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour
     int iVistaCur = 0;
     VistaData[] vistas;
     GameObject objEffect;
-    Vector3 directionEffectRel;
+    bool fEffectMoved = false;
 
     void Start()
     {
@@ -35,12 +35,15 @@ public class GameController : MonoBehaviour
         vistas = vistaDatas.vistaDatas;
 
         objEffect = GameObject.FindWithTag("Effect");
-        directionEffectRel = Camera.main.transform.InverseTransformDirection(objEffect.transform.position);
     }
 
     void LateUpdate()
     {
-        objEffect.transform.position = Camera.main.transform.TransformDirection(directionEffectRel);
+        if (!fEffectMoved && (Time.realtimeSinceStartup > 10))
+        {
+            objEffect.transform.RotateAround(Camera.main.transform.position, new Vector3(1, 0, 0), -30);
+            fEffectMoved = true;
+        }
     }
 
     public void NextVista()
