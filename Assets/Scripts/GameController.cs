@@ -23,10 +23,12 @@ public struct VistaDatas
 
 public class GameController : MonoBehaviour
 {
+    public float sourceVisibleDelay = 10f;
+
     int iVistaCur = 0;
     VistaData[] vistas;
-    GameObject objEffect;
-    bool fEffectMoved = false;
+    GameObject objSource; // source of the magic effect (like bubbles or fireworks)
+    bool fSourceVisible = false;
 
     void Start()
     {
@@ -34,15 +36,18 @@ public class GameController : MonoBehaviour
         VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
         vistas = vistaDatas.vistaDatas;
 
-        objEffect = GameObject.FindWithTag("Effect");
+        objSource = GameObject.FindWithTag("Effect");
     }
 
     void LateUpdate()
     {
-        if (!fEffectMoved && (Time.realtimeSinceStartup > 10))
+        // if specified number of seconds are up, move the source object to center of screen
+        if (!fSourceVisible && (Time.realtimeSinceStartup > sourceVisibleDelay))
         {
-            objEffect.transform.RotateAround(Camera.main.transform.position, new Vector3(1, 0, 0), -30);
-            fEffectMoved = true;
+            Transform transform = objSource.transform;
+            Vector3 localPosition = transform.localPosition;
+            transform.Translate(-localPosition.x, -localPosition.y, localPosition.z, Camera.main.transform);
+            fSourceVisible = true;
         }
     }
 
