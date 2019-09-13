@@ -5825,7 +5825,7 @@ GameObject:
   - component: {fileID: 2081102998}
   - component: {fileID: 2081102997}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: GameController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5843,6 +5843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd61ba10fbdd0a64384998b5360f989d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sourceVisibleDelay: 10
 --- !u!4 &2081102998
 Transform:
   m_ObjectHideFlags: 0
