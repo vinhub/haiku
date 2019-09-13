@@ -23,12 +23,16 @@ public struct VistaDatas
 
 public class GameController : MonoBehaviour
 {
-    public float sourceVisibleDelay = 10f;
+    public float emitterAnimDelay = 10f; // start emitter animation after this delay, seconds
 
     int currentVistaIndex = 0;
     VistaData[] vistas;
-    GameObject sourceObject; // source of the magic effect (like bubbles or fireworks)
-    bool isSourceVisible = false;
+
+    GameObject emitterObject; // source of the effect (like bubbles or fireworks)
+    bool isEmitterInFinalPosition = false;
+    Vector3 initialPosition, finalPosition;
+    const float emitterAnimTimeTotal = 3; // total length of source animation in seconds
+    float emitterAnimTimeCur = 0;
 
     void Start()
     {
@@ -36,18 +40,23 @@ public class GameController : MonoBehaviour
         VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
         vistas = vistaDatas.vistaDatas;
 
-        sourceObject = GameObject.FindWithTag("Effect");
+        emitterObject = GameObject.FindWithTag("Effect");
+        initialPosition = emitterObject.transform.localPosition;
+        finalPosition = new Vector3(0, -1, initialPosition.z);
     }
 
     void LateUpdate()
     {
-        // if specified number of seconds are up, move the source object to center of screen
-        if (!isSourceVisible && (Time.realtimeSinceStartup > sourceVisibleDelay))
+        // if specified number of seconds are up, move the emitter to make it visible
+        if (!isEmitterInFinalPosition && (Time.realtimeSinceStartup > emitterAnimDelay))
         {
-            Transform transform = sourceObject.transform;
-            Vector3 localPosition = transform.localPosition;
-            transform.Translate(-localPosition.x, -localPosition.y, localPosition.z, Camera.main.transform);
-            isSourceVisible = true;
+            emitterObject.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTimeTotal, 
+                (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTimeTotal, 
+                0, Camera.main.transform);
+
+            emitterAnimTimeCur += Time.deltaTime;
+            if (emitterAnimTimeCur >= emitterAnimTimeTotal)
+                isEmitterInFinalPosition = true;
         }
     }
 
