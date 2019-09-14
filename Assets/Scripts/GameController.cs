@@ -23,16 +23,17 @@ public struct VistaDatas
 
 public class GameController : MonoBehaviour
 {
-    public float emitterAnimDelay = 10f; // start emitter animation after this delay, seconds
+    public float showMessageDelay = 10f; // start emitter animation after this delay, seconds
 
     int currentVistaIndex = 0;
     VistaData[] vistas;
 
     GameObject emitterObject; // source of the effect (like bubbles or fireworks)
-    bool isEmitterInFinalPosition = false;
     Vector3 initialPosition, finalPosition;
     const float emitterAnimTimeTotal = 3; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
+    enum GameState { started, showingMessage, emitterMoving, completed };
+    GameState gameState = GameState.started;
 
     void Start()
     {
@@ -47,17 +48,44 @@ public class GameController : MonoBehaviour
 
     void LateUpdate()
     {
-        // if specified number of seconds are up, move the emitter to make it visible
-        if (!isEmitterInFinalPosition && (Time.realtimeSinceStartup > emitterAnimDelay))
+        switch (gameState)
         {
-            emitterObject.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTimeTotal, 
-                (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTimeTotal, 
-                0, Camera.main.transform);
+            case GameState.started:
+                if (Time.realtimeSinceStartup >= showMessageDelay)
+                {
+                    GameObject uiObj = GameObject.FindGameObjectWithTag("UI");
+                    GameObject messagePnl = uiObj.FindObject("MessagePnl");
+                    messagePnl.SetActive(true);
+                    gameState = GameState.showingMessage;
+                }
+                break;
 
-            emitterAnimTimeCur += Time.deltaTime;
-            if (emitterAnimTimeCur >= emitterAnimTimeTotal)
-                isEmitterInFinalPosition = true;
+            case GameState.showingMessage:
+                break;
+
+            case GameState.emitterMoving:
+                // move the emitter to make it visible
+                emitterObject.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTimeTotal,
+                    (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTimeTotal,
+                    0, Camera.main.transform);
+
+                emitterAnimTimeCur += Time.deltaTime;
+                if (emitterAnimTimeCur >= emitterAnimTimeTotal)
+                    gameState = GameState.completed;
+                break;
+
+            case GameState.completed:
+                break;
         }
+    }
+
+    public void HideMessage()
+    {
+        GameObject uiObj = GameObject.FindGameObjectWithTag("UI");
+        GameObject messagePnl = uiObj.FindObject("MessagePnl");
+        messagePnl.SetActive(false);
+
+        gameState = GameState.emitterMoving;
     }
 
     public void NextVista()
