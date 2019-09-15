@@ -23,23 +23,31 @@ public struct VistaDatas
 
 public class GameController : MonoBehaviour
 {
-    public float showMessageDelay = 10f; // start emitter animation after this delay, seconds
+    public float delayForShowingMessage = 10f; // delay in seconds before we will consider showing the message
+    public int rotationForShowingMessage = 40; // amount of rotation before we will consider showing the message
 
     int currentVistaIndex = 0;
     VistaData[] vistas;
 
     GameObject emitterObject; // source of the effect (like bubbles or fireworks)
+    Quaternion initialCameraRotation;
     Vector3 initialPosition, finalPosition;
-    const float emitterAnimTimeTotal = 3; // total length of source animation in seconds
-    float emitterAnimTimeCur = 0;
-    enum GameState { started, showingMessage, emitterMoving, completed };
+
+    enum GameState { started, lookedForSource, showingMessage, emitterMoving, completed };
     GameState gameState = GameState.started;
+
+    const float emitterAnimTimeTotal = 2; // total length of source animation in seconds
+    float emitterAnimTimeCur = 0;
+
+    int curRotationMax = 0;
 
     void Start()
     {
         TextAsset jsonTextFile = Resources.Load<TextAsset>("vistas");
         VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
         vistas = vistaDatas.vistaDatas;
+
+        initialCameraRotation = new Quaternion(Camera.main.transform.rotation.x, Camera.main.transform.rotation.y, Camera.main.transform.rotation.z, Camera.main.transform.rotation.w);
 
         emitterObject = GameObject.FindWithTag("Effect");
         initialPosition = emitterObject.transform.localPosition;
@@ -51,13 +59,19 @@ public class GameController : MonoBehaviour
         switch (gameState)
         {
             case GameState.started:
-                if (Time.realtimeSinceStartup >= showMessageDelay)
+                if (Quaternion.Angle(Camera.main.transform.rotation, initialCameraRotation) > curRotationMax)
+                    gameState = GameState.lookedForSource;
+                break;
+
+            case GameState.lookedForSource:
+                if (Time.realtimeSinceStartup > delayForShowingMessage)
                 {
                     GameObject uiObj = GameObject.FindGameObjectWithTag("UI");
                     GameObject messagePnl = uiObj.FindObject("MessagePnl");
                     messagePnl.SetActive(true);
                     gameState = GameState.showingMessage;
                 }
+
                 break;
 
             case GameState.showingMessage:
