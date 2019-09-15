@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [Serializable]
 public struct VistaData
@@ -33,11 +34,14 @@ public class GameController : MonoBehaviour
     Quaternion initialCameraRotation;
     Vector3 initialPosition, finalPosition;
 
-    enum GameState { started, lookedForSource, showingMessage, emitterMoving, completed };
+    enum GameState { started, lookedForSource, showingMessage, hidingMessage, emitterMoving, completed };
     GameState gameState = GameState.started;
 
-    const float emitterAnimTimeTotal = 2; // total length of source animation in seconds
+    const float emitterAnimTime = 2; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
+
+    CanvasGroup messagePnlCG;
+    float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
     int curRotationMax = 0;
 
@@ -52,6 +56,8 @@ public class GameController : MonoBehaviour
         emitterObject = GameObject.FindWithTag("Effect");
         initialPosition = emitterObject.transform.localPosition;
         finalPosition = new Vector3(0, -1, initialPosition.z);
+
+        messagePnlCG = GameObject.FindGameObjectWithTag("Message").GetComponent<CanvasGroup>();
     }
 
     void LateUpdate()
@@ -66,25 +72,38 @@ public class GameController : MonoBehaviour
             case GameState.lookedForSource:
                 if (Time.realtimeSinceStartup > delayForShowingMessage)
                 {
-                    GameObject uiObj = GameObject.FindGameObjectWithTag("UI");
-                    GameObject messagePnl = uiObj.FindObject("MessagePnl");
-                    messagePnl.SetActive(true);
+                    messagePnlFadeTimeCur = 0;
                     gameState = GameState.showingMessage;
                 }
 
                 break;
 
             case GameState.showingMessage:
+                if (messagePnlCG.alpha < 1)
+                {
+                    messagePnlFadeTimeCur += Time.deltaTime;
+                    messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, 1, messagePnlFadeTimeCur);
+                }
+                break;
+
+            case GameState.hidingMessage:
+                if (messagePnlCG.alpha > 0)
+                {
+                    messagePnlFadeTimeCur += Time.deltaTime;
+                    messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, 0, messagePnlFadeTimeCur);
+                }
+                else
+                    gameState = GameState.emitterMoving;
                 break;
 
             case GameState.emitterMoving:
                 // move the emitter to make it visible
-                emitterObject.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTimeTotal,
-                    (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTimeTotal,
+                emitterObject.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTime,
+                    (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTime,
                     0, Camera.main.transform);
 
                 emitterAnimTimeCur += Time.deltaTime;
-                if (emitterAnimTimeCur >= emitterAnimTimeTotal)
+                if (emitterAnimTimeCur >= emitterAnimTime)
                     gameState = GameState.completed;
                 break;
 
@@ -99,7 +118,8 @@ public class GameController : MonoBehaviour
         GameObject messagePnl = uiObj.FindObject("MessagePnl");
         messagePnl.SetActive(false);
 
-        gameState = GameState.emitterMoving;
+        messagePnlFadeTimeCur = 0;
+        gameState = GameState.hidingMessage;
     }
 
     public void NextVista()

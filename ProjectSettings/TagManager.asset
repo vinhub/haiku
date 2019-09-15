@@ -7,6 +7,7 @@ TagManager:
   - Fire
   - Effect
   - UI
+  - Message
   layers:
   - Default
   - TransparentFX
