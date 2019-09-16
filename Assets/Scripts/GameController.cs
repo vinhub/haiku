@@ -34,12 +34,13 @@ public class GameController : MonoBehaviour
     Quaternion initialCameraRotation;
     Vector3 initialPosition, finalPosition;
 
-    enum GameState { started, lookedForSource, showingMessage, hidingMessage, emitterMoving, completed };
+    enum GameState { started, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
     GameState gameState = GameState.started;
 
     const float emitterAnimTime = 2; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
+    GameObject messagePnl, messageTxt, endMessageTxt, dismissMessageBtn;
     CanvasGroup messagePnlCG;
     float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
@@ -53,11 +54,17 @@ public class GameController : MonoBehaviour
 
         initialCameraRotation = new Quaternion(Camera.main.transform.rotation.x, Camera.main.transform.rotation.y, Camera.main.transform.rotation.z, Camera.main.transform.rotation.w);
 
-        emitterObject = GameObject.FindWithTag("Effect");
+        emitterObject = GameObject.Find("EffectContainer");
         initialPosition = emitterObject.transform.localPosition;
         finalPosition = new Vector3(0, -1, initialPosition.z);
 
-        messagePnlCG = GameObject.FindGameObjectWithTag("Message").GetComponent<CanvasGroup>();
+        messagePnl = GameObject.Find("MessagePnl");
+        messagePnlCG = messagePnl.GetComponent<CanvasGroup>();
+        messageTxt = GameObject.Find("MessageTxt");
+        endMessageTxt = GameObject.Find("EndMessageTxt");
+        dismissMessageBtn = GameObject.Find("DismissMessageBtn");
+
+        endMessageTxt.SetActive(false);
     }
 
     void LateUpdate()
@@ -71,28 +78,15 @@ public class GameController : MonoBehaviour
 
             case GameState.lookedForSource:
                 if (Time.realtimeSinceStartup > delayForShowingMessage)
-                {
-                    messagePnlFadeTimeCur = 0;
-                    gameState = GameState.showingMessage;
-                }
-
+                    gameState = GameState.fadeInMessage;
                 break;
 
-            case GameState.showingMessage:
-                if (messagePnlCG.alpha < 1)
-                {
-                    messagePnlFadeTimeCur += Time.deltaTime;
-                    messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, 1, messagePnlFadeTimeCur);
-                }
+            case GameState.fadeInMessage:
+                FadeInOut(messagePnlCG, true);
                 break;
 
-            case GameState.hidingMessage:
-                if (messagePnlCG.alpha > 0)
-                {
-                    messagePnlFadeTimeCur += Time.deltaTime;
-                    messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, 0, messagePnlFadeTimeCur);
-                }
-                else
+            case GameState.fadeOutMessage:
+                if (FadeInOut(messagePnlCG, false))
                     gameState = GameState.emitterMoving;
                 break;
 
@@ -104,22 +98,41 @@ public class GameController : MonoBehaviour
 
                 emitterAnimTimeCur += Time.deltaTime;
                 if (emitterAnimTimeCur >= emitterAnimTime)
-                    gameState = GameState.completed;
+                    gameState = GameState.fadeInEndMessage;
+                break;
+
+            case GameState.fadeInEndMessage:
+                messageTxt.SetActive(false);
+                endMessageTxt.SetActive(true);
+                dismissMessageBtn.SetActive(false);
+                messagePnlFadeTimeCur = 0;
+                gameState = GameState.completed;
                 break;
 
             case GameState.completed:
+                FadeInOut(messagePnlCG, true);
                 break;
         }
     }
 
+    // fades in or out a canvas group, returns true when completed
+    private bool FadeInOut(CanvasGroup cg, bool fadingIn)
+    {
+        int fadeTo = fadingIn ? 1 : 0;
+        if (fadingIn ? (cg.alpha < fadeTo) : (cg.alpha > fadeTo))
+        {
+            messagePnlFadeTimeCur += Time.deltaTime;
+            messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, fadeTo, messagePnlFadeTimeCur);
+            return false;
+        }
+
+        return true;
+    }
+
     public void HideMessage()
     {
-        GameObject uiObj = GameObject.FindGameObjectWithTag("UI");
-        GameObject messagePnl = uiObj.FindObject("MessagePnl");
-        messagePnl.SetActive(false);
-
         messagePnlFadeTimeCur = 0;
-        gameState = GameState.hidingMessage;
+        gameState = GameState.fadeOutMessage;
     }
 
     public void NextVista()
