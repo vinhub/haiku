@@ -30,7 +30,7 @@ public class GameController : MonoBehaviour
     int currentVistaIndex = 0;
     VistaData[] vistas;
 
-    GameObject emitterObject; // source of the effect (like bubbles or fireworks)
+    GameObject effectContainer; // source of the effect (like bubbles or fireworks)
     Quaternion initialCameraRotation;
     Vector3 initialPosition, finalPosition;
 
@@ -40,7 +40,7 @@ public class GameController : MonoBehaviour
     const float emitterAnimTime = 2; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
-    GameObject messagePnl, messageTxt, endMessageTxt, dismissMessageBtn;
+    GameObject messagePnl, messageTxt, endMessageTxt, dismissMessageBtn, brain;
     CanvasGroup messagePnlCG;
     float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
@@ -54,8 +54,8 @@ public class GameController : MonoBehaviour
 
         initialCameraRotation = new Quaternion(Camera.main.transform.rotation.x, Camera.main.transform.rotation.y, Camera.main.transform.rotation.z, Camera.main.transform.rotation.w);
 
-        emitterObject = GameObject.Find("EffectContainer");
-        initialPosition = emitterObject.transform.localPosition;
+        effectContainer = GameObject.Find("EffectContainer");
+        initialPosition = effectContainer.transform.localPosition;
         finalPosition = new Vector3(0, -1, initialPosition.z);
 
         messagePnl = GameObject.Find("MessagePnl");
@@ -63,6 +63,7 @@ public class GameController : MonoBehaviour
         messageTxt = GameObject.Find("MessageTxt");
         endMessageTxt = GameObject.Find("EndMessageTxt");
         dismissMessageBtn = GameObject.Find("DismissMessageBtn");
+        brain = GameObject.Find("Brain");
 
         endMessageTxt.SetActive(false);
     }
@@ -92,7 +93,7 @@ public class GameController : MonoBehaviour
 
             case GameState.emitterMoving:
                 // move the emitter to make it visible
-                emitterObject.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTime,
+                effectContainer.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTime,
                     (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTime,
                     0, Camera.main.transform);
 
@@ -110,7 +111,10 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameState.completed:
-                FadeInOut(messagePnlCG, true);
+                if (FadeInOut(messagePnlCG, true))
+                {
+                    effectContainer.transform.Rotate(Vector3.up, 0.1f);
+                }
                 break;
         }
     }
