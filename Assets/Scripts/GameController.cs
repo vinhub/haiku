@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -34,13 +35,13 @@ public class GameController : MonoBehaviour
     Quaternion initialCameraRotation;
     Vector3 initialPosition, finalPosition;
 
-    enum GameState { started, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
-    GameState gameState = GameState.started;
-
+    enum GameState { start, fadeInInitMessage, fadeOutInitMessage, lookingForSource, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
+    GameState gameState = GameState.start;
+    private float startedLookingAt;
     const float emitterAnimTime = 2; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
-    GameObject messagePnl, messageTxt, endMessageTxt, dismissMessageBtn, brain;
+    GameObject messagePnl, initMessageTxt, messageTxt, endMessageTxt, dismissMessageBtn, dismissMessageTxt, brain;
     CanvasGroup messagePnlCG;
     float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
@@ -60,26 +61,51 @@ public class GameController : MonoBehaviour
 
         messagePnl = GameObject.Find("MessagePnl");
         messagePnlCG = messagePnl.GetComponent<CanvasGroup>();
+        initMessageTxt = GameObject.Find("InitMessageTxt");
         messageTxt = GameObject.Find("MessageTxt");
         endMessageTxt = GameObject.Find("EndMessageTxt");
         dismissMessageBtn = GameObject.Find("DismissMessageBtn");
+        dismissMessageTxt = GameObject.Find("DismissMessageTxt");
         brain = GameObject.Find("Brain");
-
-        endMessageTxt.SetActive(false);
     }
 
     void LateUpdate()
     {
         switch (gameState)
         {
-            case GameState.started:
+            case GameState.start:
+                messageTxt.SetActive(false);
+                endMessageTxt.SetActive(false);
+                initMessageTxt.GetComponent<TMP_Text>().text = "You can look around by clicking or tapping and draging."; // TODO: check input device to show approp message
+                dismissMessageTxt.GetComponent<Text>().text = "Ok";
+                gameState = GameState.fadeInInitMessage;
+                break;
+
+            case GameState.fadeInInitMessage:
+                FadeInOut(messagePnlCG, true);
+                break;
+
+            case GameState.fadeOutInitMessage:
+                if (FadeInOut(messagePnlCG, false))
+                {
+                    gameState = GameState.lookingForSource;
+                    startedLookingAt = Time.realtimeSinceStartup;
+                }
+                break;
+
+            case GameState.lookingForSource:
                 if (Quaternion.Angle(Camera.main.transform.rotation, initialCameraRotation) > curRotationMax)
                     gameState = GameState.lookedForSource;
                 break;
 
             case GameState.lookedForSource:
-                if (Time.realtimeSinceStartup > delayForShowingMessage)
+                if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
+                {
+                    initMessageTxt.SetActive(false);
+                    messageTxt.SetActive(true);
+                    dismissMessageTxt.GetComponent<Text>().text = "What truth?";
                     gameState = GameState.fadeInMessage;
+                }
                 break;
 
             case GameState.fadeInMessage:
@@ -136,7 +162,7 @@ public class GameController : MonoBehaviour
     public void HideMessage()
     {
         messagePnlFadeTimeCur = 0;
-        gameState = GameState.fadeOutMessage;
+        gameState = (gameState == GameState.fadeInInitMessage) ? GameState.fadeOutInitMessage : GameState.fadeOutMessage;
     }
 
     public void NextVista()
