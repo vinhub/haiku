@@ -39,7 +39,7 @@ public class GameController : MonoBehaviour
     enum GameState { start, fadeInInitMessage, fadeOutInitMessage, lookingForSource, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
     GameState gameState = GameState.start;
     private float startedLookingAt;
-    const float emitterAnimTime = 2; // total length of source animation in seconds
+    const float emitterAnimTime = 1; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
     GameObject messagePnl, initMessageTxt, messageTxt, endMessageTxt, dismissMessageBtn, dismissMessageTxt, brain;
@@ -100,7 +100,9 @@ public class GameController : MonoBehaviour
                 if (curRotation > curRotationMax)
                     curRotationMax = curRotation;
 
-                if ((cDragsTotal >= numDragsForShowingMessage) && (curRotationMax >= rotationForShowingMessage))
+                // if total number of drags and the max rotation so far have exceeded their target Or user has already viewed the vista for a long time, move to the next state
+                if (((cDragsTotal >= numDragsForShowingMessage) && (curRotationMax >= rotationForShowingMessage)) ||
+                    ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage * 3))
                     gameState = GameState.lookedForSource;
                 break;
 
@@ -125,9 +127,11 @@ public class GameController : MonoBehaviour
 
             case GameState.emitterMoving:
                 // move the emitter to make it visible
-                effectContainer.transform.Translate((finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTime,
+                effectContainer.transform.Translate(
+                    (finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTime,
                     (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTime,
-                    0, Camera.main.transform);
+                    (finalPosition.z - initialPosition.z) * Time.deltaTime / emitterAnimTime,
+                    Camera.main.transform);
 
                 emitterAnimTimeCur += Time.deltaTime;
                 if (emitterAnimTimeCur >= emitterAnimTime)
