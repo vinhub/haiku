@@ -7,6 +7,7 @@ public class MainCamera : MonoBehaviour
     public float speed = 3.5f;
     private float X;
     private float Y;
+    private bool isDragging = false;
 
     void Update()
     {
@@ -16,6 +17,12 @@ public class MainCamera : MonoBehaviour
             X = transform.rotation.eulerAngles.x;
             Y = transform.rotation.eulerAngles.y;
             transform.rotation = Quaternion.Euler(X, Y, 0);
+
+            isDragging = true;
+        } else if (isDragging && Input.GetMouseButtonUp(0))
+        {
+            GameController.DragOver();
+            isDragging = false;
         }
     }
 }

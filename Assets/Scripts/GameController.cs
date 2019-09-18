@@ -26,6 +26,7 @@ public struct VistaDatas
 public class GameController : MonoBehaviour
 {
     public float delayForShowingMessage = 10f; // delay in seconds before we will consider showing the message
+    public int numDragsForShowingMessage = 3;
     public int rotationForShowingMessage = 40; // amount of rotation before we will consider showing the message
 
     int currentVistaIndex = 0;
@@ -45,7 +46,8 @@ public class GameController : MonoBehaviour
     CanvasGroup messagePnlCG;
     float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
-    int curRotationMax = 0;
+    float curRotationMax = 0;
+    static int cDragsTotal = 0;
 
     void Start()
     {
@@ -94,7 +96,11 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameState.lookingForSource:
-                if (Quaternion.Angle(Camera.main.transform.rotation, initialCameraRotation) > curRotationMax)
+                float curRotation = Quaternion.Angle(Camera.main.transform.rotation, initialCameraRotation);
+                if (curRotation > curRotationMax)
+                    curRotationMax = curRotation;
+
+                if ((cDragsTotal >= numDragsForShowingMessage) && (curRotationMax >= rotationForShowingMessage))
                     gameState = GameState.lookedForSource;
                 break;
 
@@ -163,6 +169,11 @@ public class GameController : MonoBehaviour
     {
         messagePnlFadeTimeCur = 0;
         gameState = (gameState == GameState.fadeInInitMessage) ? GameState.fadeOutInitMessage : GameState.fadeOutMessage;
+    }
+
+    internal static void DragOver()
+    {
+        cDragsTotal++;
     }
 
     public void NextVista()
