@@ -11,17 +11,17 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-[Serializable]
-public struct VistaData
-{
-    public string fileName;
-}
+//[Serializable]
+//public struct VistaData
+//{
+//    public string fileName;
+//}
 
-[Serializable]
-public struct VistaDatas
-{
-    public VistaData[] vistaDatas;
-}
+//[Serializable]
+//public struct VistaDatas
+//{
+//    public VistaData[] vistaDatas;
+//}
 
 public class GameController : MonoBehaviour
 {
@@ -29,8 +29,8 @@ public class GameController : MonoBehaviour
     public int numDragsForShowingMessage = 3;
     public int rotationForShowingMessage = 40; // amount of rotation before we will consider showing the message
 
-    int currentVistaIndex = 0;
-    VistaData[] vistas;
+    //int currentVistaIndex = 0;
+    //VistaData[] vistas;
 
     GameObject effectContainer; // source of the effect (like bubbles or fireworks)
     Quaternion initialCameraRotation;
@@ -51,9 +51,9 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
-        TextAsset jsonTextFile = Resources.Load<TextAsset>("vistas");
-        VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
-        vistas = vistaDatas.vistaDatas;
+        //TextAsset jsonTextFile = Resources.Load<TextAsset>("vistas");
+        //VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
+        //vistas = vistaDatas.vistaDatas;
 
         initialCameraRotation = new Quaternion(Camera.main.transform.rotation.x, Camera.main.transform.rotation.y, Camera.main.transform.rotation.z, Camera.main.transform.rotation.w);
 
@@ -180,51 +180,51 @@ public class GameController : MonoBehaviour
         cDragsTotal++;
     }
 
-    public void NextVista()
-    {
-        currentVistaIndex = (currentVistaIndex + 1) % vistas.Count();
-        if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
-        {
-            loadVista(currentVistaIndex);
-        }
-    }
+    //public void NextVista()
+    //{
+    //    currentVistaIndex = (currentVistaIndex + 1) % vistas.Count();
+    //    if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
+    //    {
+    //        loadVista(currentVistaIndex);
+    //    }
+    //}
 
-    public void PrevVista()
-    {
-        currentVistaIndex = ((currentVistaIndex - 1) >= 0) ? (currentVistaIndex - 1) : (vistas.Count() - 1);
+    //public void PrevVista()
+    //{
+    //    currentVistaIndex = ((currentVistaIndex - 1) >= 0) ? (currentVistaIndex - 1) : (vistas.Count() - 1);
 
-        if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
-        {
-            loadVista(currentVistaIndex);
-        }
-    }
+    //    if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
+    //    {
+    //        loadVista(currentVistaIndex);
+    //    }
+    //}
 
-    private void loadVista(int iVista)
-    {
-        StartCoroutine(loadImage(iVista));
-    }
+    //private void loadVista(int iVista)
+    //{
+    //    StartCoroutine(loadImage(iVista));
+    //}
 
-    private IEnumerator loadImage(int iVista)
-    {
-        Uri uri = new Uri(Application.streamingAssetsPath + "/Skyboxes/" + vistas[iVista].fileName);
+    //private IEnumerator loadImage(int iVista)
+    //{
+    //    Uri uri = new Uri(Application.streamingAssetsPath + "/Skyboxes/" + vistas[iVista].fileName);
 
-        using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(uri))
-        {
-            yield return uwr.SendWebRequest();
+    //    using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(uri))
+    //    {
+    //        yield return uwr.SendWebRequest();
 
-            if (uwr.isNetworkError || uwr.isHttpError)
-            {
-                Debug.Log(uwr.error);
-            }
-            else
-            {
-                // TODO: Not working
-                Texture2D texture = DownloadHandlerTexture.GetContent(uwr);
-                Material matSkybox = new Material(Shader.Find("Skybox/Cubemap"));
-                matSkybox.SetTexture("_Tex", texture);
-                RenderSettings.skybox = matSkybox;
-                DynamicGI.UpdateEnvironment();
-            }
-        }
-    }
+    //        if (uwr.isNetworkError || uwr.isHttpError)
+    //        {
+    //            Debug.Log(uwr.error);
+    //        }
+    //        else
+    //        {
+    //            // TODO: Not working
+    //            Texture2D texture = DownloadHandlerTexture.GetContent(uwr);
+    //            Material matSkybox = new Material(Shader.Find("Skybox/Cubemap"));
+    //            matSkybox.SetTexture("_Tex", texture);
+    //            RenderSettings.skybox = matSkybox;
+    //            DynamicGI.UpdateEnvironment();
+    //        }
+    //    }
+    //}
 }
