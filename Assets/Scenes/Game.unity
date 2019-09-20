@@ -5426,7 +5426,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1000, y: 680}
+  m_SizeDelta: {x: 1000, y: 560}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1074229272
 MonoBehaviour:
@@ -5780,7 +5780,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1000, y: 500}
+  m_SizeDelta: {x: 1000, y: 340}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1208672119
 MonoBehaviour:
@@ -5837,7 +5837,7 @@ MonoBehaviour:
   m_fontSizeMin: 24
   m_fontSizeMax: 64
   m_fontStyle: 1
-  m_textAlignment: 514
+  m_textAlignment: 258
   m_characterSpacing: 0
   m_wordSpacing: 0
   m_lineSpacing: 0
@@ -5868,7 +5868,7 @@ MonoBehaviour:
   m_firstVisibleCharacter: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 20, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1208672119}
     characterCount: 11
