@@ -42,7 +42,7 @@ public class GameController : MonoBehaviour
     const float emitterAnimTime = 1; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
-    GameObject messagePnl, initMessageTxt, messageTxt, endMessageTxt, dismissMessageBtn, dismissMessageTxt, brain;
+    GameObject messagePnl, messageIconImage, messageTxt, dismissMessageBtn, dismissMessageTxt, brain;
     CanvasGroup messagePnlCG;
     float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
@@ -63,9 +63,7 @@ public class GameController : MonoBehaviour
 
         messagePnl = GameObject.Find("MessagePnl");
         messagePnlCG = messagePnl.GetComponent<CanvasGroup>();
-        initMessageTxt = GameObject.Find("InitMessageTxt");
         messageTxt = GameObject.Find("MessageTxt");
-        endMessageTxt = GameObject.Find("EndMessageTxt");
         dismissMessageBtn = GameObject.Find("DismissMessageBtn");
         dismissMessageTxt = GameObject.Find("DismissMessageTxt");
         brain = GameObject.Find("Brain");
@@ -76,9 +74,7 @@ public class GameController : MonoBehaviour
         switch (gameState)
         {
             case GameState.start:
-                messageTxt.SetActive(false);
-                endMessageTxt.SetActive(false);
-                initMessageTxt.GetComponent<TMP_Text>().text = "You can look around by clicking or tapping and draging."; // TODO: check input device to show approp message
+                messageTxt.GetComponent<TMP_Text>().text = "Look around by clicking or tapping and draging."; // TODO: check input device to show approp message
                 dismissMessageTxt.GetComponent<Text>().text = "Ok";
                 gameState = GameState.fadeInInitMessage;
                 break;
@@ -109,8 +105,7 @@ public class GameController : MonoBehaviour
             case GameState.lookedForSource:
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
-                    initMessageTxt.SetActive(false);
-                    messageTxt.SetActive(true);
+                    messageTxt.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\n\r\nInstead, only try to realize the truth.";
                     dismissMessageTxt.GetComponent<Text>().text = "What truth?";
                     gameState = GameState.fadeInMessage;
                 }
@@ -139,8 +134,7 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameState.fadeInEndMessage:
-                messageTxt.SetActive(false);
-                endMessageTxt.SetActive(true);
+                messageTxt.GetComponent<TMP_Text>().text = "That it's all in your mind...";
                 dismissMessageBtn.SetActive(false);
                 messagePnlFadeTimeCur = 0;
                 gameState = GameState.completed;
