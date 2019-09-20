@@ -42,7 +42,8 @@ public class GameController : MonoBehaviour
     const float emitterAnimTime = 1; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
-    GameObject messagePnl, messageIconImage, messageTxt, dismissMessageBtn, dismissMessageTxt, brain;
+    GameObject messagePnl, messageTxt, dismissMessageBtn, dismissMessageTxt, brain;
+    RawImage messageIconImage;
     CanvasGroup messagePnlCG;
     float messagePnlFadeTimeCur = 0; // message panel fade in/out time
 
@@ -63,6 +64,7 @@ public class GameController : MonoBehaviour
 
         messagePnl = GameObject.Find("MessagePnl");
         messagePnlCG = messagePnl.GetComponent<CanvasGroup>();
+        messageIconImage = GameObject.Find("MessageIcon").GetComponent<RawImage>();
         messageTxt = GameObject.Find("MessageTxt");
         dismissMessageBtn = GameObject.Find("DismissMessageBtn");
         dismissMessageTxt = GameObject.Find("DismissMessageTxt");
@@ -74,6 +76,7 @@ public class GameController : MonoBehaviour
         switch (gameState)
         {
             case GameState.start:
+                messageIconImage.texture = (Texture2D)Resources.Load("ClickNDrag.png");
                 messageTxt.GetComponent<TMP_Text>().text = "Look around by clicking or tapping and draging."; // TODO: check input device to show approp message
                 dismissMessageTxt.GetComponent<Text>().text = "Ok";
                 gameState = GameState.fadeInInitMessage;
@@ -105,6 +108,7 @@ public class GameController : MonoBehaviour
             case GameState.lookedForSource:
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
+                    messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy.png");
                     messageTxt.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\n\r\nInstead, only try to realize the truth.";
                     dismissMessageTxt.GetComponent<Text>().text = "What truth?";
                     gameState = GameState.fadeInMessage;
@@ -134,6 +138,7 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameState.fadeInEndMessage:
+                messageIconImage.texture = (Texture2D)Resources.Load("AppIcon.png");
                 messageTxt.GetComponent<TMP_Text>().text = "That it's all in your mind...";
                 dismissMessageBtn.SetActive(false);
                 messagePnlFadeTimeCur = 0;
