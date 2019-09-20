@@ -76,8 +76,8 @@ public class GameController : MonoBehaviour
         switch (gameState)
         {
             case GameState.start:
-                messageIconImage.texture = (Texture2D)Resources.Load("ClickNDrag.png");
-                messageTxt.GetComponent<TMP_Text>().text = "Look around by clicking or tapping and draging."; // TODO: check input device to show approp message
+                messageIconImage.texture = (Texture2D)Resources.Load("ClickNDrag", typeof(Texture2D));
+                messageTxt.GetComponent<TMP_Text>().text = "Click/tap and drag to look around."; // TODO: check input device to show approp message
                 dismissMessageTxt.GetComponent<Text>().text = "Ok";
                 gameState = GameState.fadeInInitMessage;
                 break;
@@ -108,8 +108,8 @@ public class GameController : MonoBehaviour
             case GameState.lookedForSource:
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
-                    messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy.png");
-                    messageTxt.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\n\r\nInstead, only try to realize the truth.";
+                    messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy", typeof(Texture2D));
+                    messageTxt.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\nInstead, only try to realize the truth.";
                     dismissMessageTxt.GetComponent<Text>().text = "What truth?";
                     gameState = GameState.fadeInMessage;
                 }
@@ -138,7 +138,7 @@ public class GameController : MonoBehaviour
                 break;
 
             case GameState.fadeInEndMessage:
-                messageIconImage.texture = (Texture2D)Resources.Load("AppIcon.png");
+                messageIconImage.texture = (Texture2D)Resources.Load("AppIcon", typeof(Texture2D));
                 messageTxt.GetComponent<TMP_Text>().text = "That it's all in your mind...";
                 dismissMessageBtn.SetActive(false);
                 messagePnlFadeTimeCur = 0;
