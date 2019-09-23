@@ -11,26 +11,11 @@ using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-//[Serializable]
-//public struct VistaData
-//{
-//    public string fileName;
-//}
-
-//[Serializable]
-//public struct VistaDatas
-//{
-//    public VistaData[] vistaDatas;
-//}
-
 public class GameController : MonoBehaviour
 {
     public float delayForShowingMessage = 10f; // delay in seconds before we will consider showing the message
     public int numDragsForShowingMessage = 3;
     public int rotationForShowingMessage = 40; // amount of rotation before we will consider showing the message
-
-    //int currentVistaIndex = 0;
-    //VistaData[] vistas;
 
     GameObject effectContainer; // source of the effect (like bubbles or fireworks)
     Quaternion initialCameraRotation;
@@ -39,23 +24,21 @@ public class GameController : MonoBehaviour
     enum GameState { start, fadeInInitMessage, fadeOutInitMessage, lookingForSource, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
     GameState gameState = GameState.start;
     private float startedLookingAt;
-    const float emitterAnimTime = 1; // total length of source animation in seconds
+    const float emitterAnimTimeTotal = 2; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
-    GameObject messagePnl, messageTxt, dismissMessageBtn, dismissMessageTxt, brain;
+    GameObject messagePnl, dismissMessageBtn, dismissMessageTxt, brain;
+    TMP_Text titleTMPText, messageTMPText;
     RawImage messageIconImage;
     CanvasGroup messagePnlCG;
-    float messagePnlFadeTimeCur = 0; // message panel fade in/out time
+    float messageFadeTimeTotal = 3; // total time for fading in / out the message panel
+    float messageFadeTimeCur = 0; // message panel fade in/out current time
 
     float curRotationMax = 0;
     static int cDragsTotal = 0;
 
-    void Start()
+    void Awake()
     {
-        //TextAsset jsonTextFile = Resources.Load<TextAsset>("vistas");
-        //VistaDatas vistaDatas = JsonUtility.FromJson<VistaDatas>(jsonTextFile.text);
-        //vistas = vistaDatas.vistaDatas;
-
         initialCameraRotation = new Quaternion(Camera.main.transform.rotation.x, Camera.main.transform.rotation.y, Camera.main.transform.rotation.z, Camera.main.transform.rotation.w);
 
         effectContainer = GameObject.Find("EffectContainer");
@@ -65,10 +48,14 @@ public class GameController : MonoBehaviour
         messagePnl = GameObject.Find("MessagePnl");
         messagePnlCG = messagePnl.GetComponent<CanvasGroup>();
         messageIconImage = GameObject.Find("MessageIcon").GetComponent<RawImage>();
-        messageTxt = GameObject.Find("MessageTxt");
+        messageTMPText = GameObject.Find("MessageTxt").GetComponent<TMP_Text>();
         dismissMessageBtn = GameObject.Find("DismissMessageBtn");
         dismissMessageTxt = GameObject.Find("DismissMessageTxt");
         brain = GameObject.Find("Brain");
+        titleTMPText = GameObject.Find("TitleTxt").GetComponent<TMP_Text>();
+
+        titleTMPText.color = new Color(255, 255, 255);
+        messageTMPText.color = new Color(255, 255, 255);
     }
 
     void LateUpdate()
@@ -77,7 +64,7 @@ public class GameController : MonoBehaviour
         {
             case GameState.start:
                 messageIconImage.texture = (Texture2D)Resources.Load("ClickNDrag", typeof(Texture2D));
-                messageTxt.GetComponent<TMP_Text>().text = "Click/tap and drag to look around."; // TODO: check input device to show approp message
+                messageTMPText.GetComponent<TMP_Text>().text = "Click/tap and drag to look around."; // TODO: check input device to show approp message
                 dismissMessageTxt.GetComponent<Text>().text = "Ok";
                 gameState = GameState.fadeInInitMessage;
                 break;
@@ -109,7 +96,7 @@ public class GameController : MonoBehaviour
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
                     messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy", typeof(Texture2D));
-                    messageTxt.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\n\r\nInstead, only try to realize the truth.";
+                    messageTMPText.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\n\r\nInstead, only try to realize the truth.";
                     dismissMessageTxt.GetComponent<Text>().text = "What truth?";
                     gameState = GameState.fadeInMessage;
                 }
@@ -127,29 +114,27 @@ public class GameController : MonoBehaviour
             case GameState.emitterMoving:
                 // move the emitter to make it visible
                 effectContainer.transform.Translate(
-                    (finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTime,
-                    (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTime,
-                    (finalPosition.z - initialPosition.z) * Time.deltaTime / emitterAnimTime,
+                    (finalPosition.x - initialPosition.x) * Time.deltaTime / emitterAnimTimeTotal,
+                    (finalPosition.y - initialPosition.y) * Time.deltaTime / emitterAnimTimeTotal,
+                    (finalPosition.z - initialPosition.z) * Time.deltaTime / emitterAnimTimeTotal,
                     Camera.main.transform);
 
                 emitterAnimTimeCur += Time.deltaTime;
-                if (emitterAnimTimeCur >= emitterAnimTime)
+                if (emitterAnimTimeCur >= emitterAnimTimeTotal)
                     gameState = GameState.fadeInEndMessage;
                 break;
 
             case GameState.fadeInEndMessage:
                 messageIconImage.texture = (Texture2D)Resources.Load("AppIcon", typeof(Texture2D));
-                messageTxt.GetComponent<TMP_Text>().text = "That it's all in your mind...";
+                messageTMPText.GetComponent<TMP_Text>().text = "That it's all in your mind...";
                 dismissMessageBtn.SetActive(false);
-                messagePnlFadeTimeCur = 0;
+                messageFadeTimeCur = 0;
                 gameState = GameState.completed;
                 break;
 
             case GameState.completed:
-                if (FadeInOut(messagePnlCG, true))
-                {
-                    effectContainer.transform.Rotate(Vector3.up, 0.1f);
-                }
+                FadeInOut(messagePnlCG, true);
+                effectContainer.transform.Rotate(Vector3.up, 0.1f);
                 break;
         }
     }
@@ -160,8 +145,8 @@ public class GameController : MonoBehaviour
         int fadeTo = fadingIn ? 1 : 0;
         if (fadingIn ? (cg.alpha < fadeTo) : (cg.alpha > fadeTo))
         {
-            messagePnlFadeTimeCur += Time.deltaTime;
-            messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, fadeTo, messagePnlFadeTimeCur);
+            messageFadeTimeCur += Time.deltaTime;
+            messagePnlCG.alpha = Mathf.Lerp(messagePnlCG.alpha, fadeTo, messageFadeTimeCur / messageFadeTimeTotal);
             return false;
         }
 
@@ -170,7 +155,7 @@ public class GameController : MonoBehaviour
 
     public void HideMessage()
     {
-        messagePnlFadeTimeCur = 0;
+        messageFadeTimeCur = 0;
         gameState = (gameState == GameState.fadeInInitMessage) ? GameState.fadeOutInitMessage : GameState.fadeOutMessage;
     }
 
@@ -178,52 +163,4 @@ public class GameController : MonoBehaviour
     {
         cDragsTotal++;
     }
-
-    //public void NextVista()
-    //{
-    //    currentVistaIndex = (currentVistaIndex + 1) % vistas.Count();
-    //    if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
-    //    {
-    //        loadVista(currentVistaIndex);
-    //    }
-    //}
-
-    //public void PrevVista()
-    //{
-    //    currentVistaIndex = ((currentVistaIndex - 1) >= 0) ? (currentVistaIndex - 1) : (vistas.Count() - 1);
-
-    //    if (RenderSettings.skybox.name != vistas[currentVistaIndex].fileName)
-    //    {
-    //        loadVista(currentVistaIndex);
-    //    }
-    //}
-
-    //private void loadVista(int iVista)
-    //{
-    //    StartCoroutine(loadImage(iVista));
-    //}
-
-    //private IEnumerator loadImage(int iVista)
-    //{
-    //    Uri uri = new Uri(Application.streamingAssetsPath + "/Skyboxes/" + vistas[iVista].fileName);
-
-    //    using (UnityWebRequest uwr = UnityWebRequestTexture.GetTexture(uri))
-    //    {
-    //        yield return uwr.SendWebRequest();
-
-    //        if (uwr.isNetworkError || uwr.isHttpError)
-    //        {
-    //            Debug.Log(uwr.error);
-    //        }
-    //        else
-    //        {
-    //            // TODO: Not working
-    //            Texture2D texture = DownloadHandlerTexture.GetContent(uwr);
-    //            Material matSkybox = new Material(Shader.Find("Skybox/Cubemap"));
-    //            matSkybox.SetTexture("_Tex", texture);
-    //            RenderSettings.skybox = matSkybox;
-    //            DynamicGI.UpdateEnvironment();
-    //        }
-    //    }
-    //}
 }
