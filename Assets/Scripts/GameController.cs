@@ -22,13 +22,13 @@ public class GameController : MonoBehaviour
     Vector3 initialPosition, finalPosition;
 
     enum GameState { start, fadeInInitMessage, fadeOutInitMessage, lookingForSource, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
-    GameState gameState = GameState.start;
+    static GameState gameState = GameState.start;
     private float startedLookingAt;
     const float emitterAnimTimeTotal = 2; // total length of source animation in seconds
     float emitterAnimTimeCur = 0;
 
     GameObject messagePnl, dismissMessageBtn, dismissMessageTxt, brain;
-    TMP_Text titleTMPText, messageTMPText;
+    TMP_Text messageTMPText;
     RawImage messageIconImage;
     CanvasGroup messagePnlCG;
     float messageFadeTimeTotal = 3; // total time for fading in / out the message panel
@@ -50,12 +50,9 @@ public class GameController : MonoBehaviour
         messageIconImage = GameObject.Find("MessageIcon").GetComponent<RawImage>();
         messageTMPText = GameObject.Find("MessageTxt").GetComponent<TMP_Text>();
         dismissMessageBtn = GameObject.Find("DismissMessageBtn");
-        dismissMessageTxt = GameObject.Find("DismissMessageTxt");
         brain = GameObject.Find("Brain");
-        titleTMPText = GameObject.Find("TitleTxt").GetComponent<TMP_Text>();
 
-        titleTMPText.color = new Color(255, 255, 255);
-        messageTMPText.color = new Color(255, 255, 255);
+        dismissMessageBtn.SetActive(false);
     }
 
     void LateUpdate()
@@ -65,7 +62,6 @@ public class GameController : MonoBehaviour
             case GameState.start:
                 messageIconImage.texture = (Texture2D)Resources.Load("ClickNDrag", typeof(Texture2D));
                 messageTMPText.GetComponent<TMP_Text>().text = "Click/tap and drag to look around."; // TODO: check input device to show approp message
-                dismissMessageTxt.GetComponent<Text>().text = "Ok";
                 gameState = GameState.fadeInInitMessage;
                 break;
 
@@ -96,8 +92,8 @@ public class GameController : MonoBehaviour
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
                     messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy", typeof(Texture2D));
-                    messageTMPText.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from. That's impossible.\r\n\r\nInstead, only try to realize the truth.";
-                    dismissMessageTxt.GetComponent<Text>().text = "What truth?";
+                    messageTMPText.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from.\r\nThat's impossible.\r\nInstead, only try to realize the truth.";
+                    dismissMessageBtn.SetActive(true);
                     gameState = GameState.fadeInMessage;
                 }
                 break;
@@ -156,11 +152,14 @@ public class GameController : MonoBehaviour
     public void HideMessage()
     {
         messageFadeTimeCur = 0;
-        gameState = (gameState == GameState.fadeInInitMessage) ? GameState.fadeOutInitMessage : GameState.fadeOutMessage;
+        gameState = GameState.fadeOutMessage;
     }
 
     internal static void DragOver()
     {
+        if (gameState == GameState.fadeInInitMessage)
+            gameState = GameState.fadeOutInitMessage;
+
         cDragsTotal++;
     }
 }
