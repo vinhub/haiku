@@ -60,8 +60,8 @@ public class GameController : MonoBehaviour
         switch (gameState)
         {
             case GameState.start:
-                messageIconImage.texture = (Texture2D)Resources.Load("ClickNDrag", typeof(Texture2D));
-                messageTMPText.GetComponent<TMP_Text>().text = "Click/tap and drag to look around."; // TODO: check input device to show approp message
+                messageIconImage.texture = (Texture2D)Resources.Load("AppIcon", typeof(Texture2D));
+                messageTMPText.GetComponent<TMP_Text>().text = "Crisp fall evening,\r\nBubbles blowing in the wind.\r\nChildhood memories.\r\n\r\n(Want to know where they are coming from?\r\nYou can click or tap and drag to look around.)"; // TODO: check input device to show approp message
                 gameState = GameState.fadeInInitMessage;
                 break;
 
@@ -92,7 +92,7 @@ public class GameController : MonoBehaviour
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
                     messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy", typeof(Texture2D));
-                    messageTMPText.GetComponent<TMP_Text>().text = "Do not try and find where the bubbles are coming from.\r\nThat's impossible.\r\nInstead, only try to realize the truth.";
+                    messageTMPText.GetComponent<TMP_Text>().text = "Where they come from is\r\nUnknowable. Instead,\r\nJust realize the truth.";
                     dismissMessageBtn.SetActive(true);
                     gameState = GameState.fadeInMessage;
                 }
@@ -122,7 +122,7 @@ public class GameController : MonoBehaviour
 
             case GameState.fadeInEndMessage:
                 messageIconImage.texture = (Texture2D)Resources.Load("AppIcon", typeof(Texture2D));
-                messageTMPText.GetComponent<TMP_Text>().text = "That it's all in your mind...";
+                messageTMPText.GetComponent<TMP_Text>().text = "That they come from within...";
                 dismissMessageBtn.SetActive(false);
                 messageFadeTimeCur = 0;
                 gameState = GameState.completed;
