@@ -92,7 +92,7 @@ public class GameController : MonoBehaviour
                 if ((Time.realtimeSinceStartup - startedLookingAt) > delayForShowingMessage)
                 {
                     messageIconImage.texture = (Texture2D)Resources.Load("SpoonBoy", typeof(Texture2D));
-                    messageTMPText.GetComponent<TMP_Text>().text = "Where they come from is\r\nUnknowable. Instead,\r\nJust realize the truth.";
+                    messageTMPText.GetComponent<TMP_Text>().text = "Where do they come from?\r\nDon't look out there. Instead,\r\nJust realize the truth.";
                     dismissMessageBtn.SetActive(true);
                     gameState = GameState.fadeInMessage;
                 }
