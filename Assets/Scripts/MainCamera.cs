@@ -14,12 +14,12 @@ public class MainCamera : MonoBehaviour
         {
             float x, y;
             
-            if (Input.touchCount > 0)
-            {
-                x = Input.touches[0].position.x;
-                y = Input.touches[0].position.y;
-            }
-            else
+            //if (Input.touchCount > 0)
+            //{
+            //    x = Input.touches[0].deltaPosition.x;
+            //    y = Input.touches[0].deltaPosition.y;
+            //}
+            //else
             {
                 x = Input.GetAxis("Mouse X");
                 y = Input.GetAxis("Mouse Y");
