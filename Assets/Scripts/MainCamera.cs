@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
@@ -11,9 +9,9 @@ public class MainCamera : MonoBehaviour
 
     void Update()
     {
+        // click / tap and drag handler
         if (Input.GetMouseButton(0))
         {
-            // click / tap and drag
             float x, y;
             
             if (Input.touchCount > 0)

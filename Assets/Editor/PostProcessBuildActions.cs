@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
-     
+
 public class PostBuildActions
 {
     [PostProcessBuild(1)]

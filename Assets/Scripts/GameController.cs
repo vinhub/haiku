@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using TMPro;
-using UnityEditor;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Networking;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     public float delayForShowingMessage = 10f; // delay in seconds before we will consider showing the message
-    public int numDragsForShowingMessage = 3;
+    public int numDragsForShowingMessage = 3; // min number of click-drags before we will consider showing the message
     public int rotationForShowingMessage = 40; // amount of rotation before we will consider showing the message
 
     GameObject effectContainer; // source of the effect (like bubbles or fireworks)
@@ -24,12 +15,11 @@ public class GameController : MonoBehaviour
     enum GameState { start, fadeInInitMessage, fadeOutInitMessage, lookingForSource, lookedForSource, fadeInMessage, fadeOutMessage, emitterMoving, completed, fadeInEndMessage };
     static GameState gameState = GameState.start;
     private float startedLookingAt;
-    const float emitterAnimTimeTotal = 2; // total length of source animation in seconds
+    const float emitterAnimTimeTotal = 2; // total length of bubble source animation in seconds
     float emitterAnimTimeCur = 0;
 
     GameObject messagePnl, dismissMessageBtn, dismissMessageTxt, brain, messageIcon;
     TMP_Text messageTMPText;
-    // RawImage messageIconImage;
     CanvasGroup messagePnlCG;
     float messageFadeTimeTotal = 3; // total time for fading in / out the message panel
     float messageFadeTimeCur = 0; // message panel fade in/out current time
@@ -156,6 +146,7 @@ public class GameController : MonoBehaviour
         gameState = GameState.fadeOutMessage;
     }
 
+    // called from click drag handler when drag is over
     internal static void DragOver()
     {
         if (gameState == GameState.fadeInInitMessage)
